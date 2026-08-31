@@ -1,14 +1,23 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define rep(i, a, b) for(int i = a; i < (b); ++i)
-#define all(x) begin(x), end(x)
-#define sz(x) (int)(x).size()
-typedef long long ll;
-typedef pair<int, int> pii;
-typedef vector<int> vi;
+typedef long long lli;
+typedef long double ld;
+typedef pair<lli, lli> ii;
+typedef vector<lli> vi;
 
-int main() {
-	cin.tie(0)->sync_with_stdio(0);
-	cin.exceptions(cin.failbit);
+#define endl '\n'
+#define _ ios::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+#define f first
+#define s second
+#define pb push_back
+#define sz(c) (lli)c.size()
+#define all(c) c.begin(), c.end()
+#define fore(i, a, b) for (lli i = (a), I = (b); i < I; i++)
+#define ford(i, a, b) for (lli i = (a), I = (b); i-- > I;)
+
+#define perr(x) cerr << #x << " " << (x) << endl
+
+int main() { _
+	return 0;
 }
