@@ -1,22 +1,23 @@
 /**
- * Author: chilli
+ * Author: Gusfield
+ * Date: Unknown
  * License: CC0
- * Description: z[i] computes the length of the longest common prefix of s[i:] and s,
- * except z[0] = 0. (abacaba -> 0010301)
- * Time: O(n)
- * Status: stress-tested
+ * Source: Cookie Clickers ICPC Notebook
+ * Description: Computes the Z-function where $Z[i]$ is the length of the longest common prefix between $s$ and $s[i \dots n-1]$.
+ * Usage:
+ *  vector<int> z = z_function(s);
+ * Time: $O(N)$
+ * Status: Tested
  */
 #pragma once
 
-vi Z(const string& S) {
-	vi z(sz(S));
-	int l = -1, r = -1;
-	rep(i,1,sz(S)) {
-		z[i] = i >= r ? 0 : min(r - i, z[i - l]);
-		while (i + z[i] < sz(S) && S[i + z[i]] == S[z[i]])
-			z[i]++;
-		if (i + z[i] > r)
-			l = i, r = i + z[i];
+vector<int> z_function(string& s){
+	int l=0,r=0,n=s.size();
+	vector<int> z(s.size(),0); // z[i] = max k: s[0,k) == s[i,i+k)
+	for(int i = 1; i < n; ++i){
+		if(i<=r)z[i]=min(r-i+1,z[i-l]);
+		while(i+z[i]<n&&s[z[i]]==s[i+z[i]])z[i]++;
+		if(i+z[i]-1>r)l=i,r=i+z[i]-1;
 	}
 	return z;
 }
