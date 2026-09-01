@@ -1,6 +1,6 @@
 #include "../utilities/template.h"
 
-#include "../../content/graph/LinkCutTree.h"
+#include "../../content/data-structures/LinkCutTree.h"
 #include "../../content/data-structures/UnionFind.h"
 
 int main() {
