@@ -21,14 +21,14 @@ pair<T, vi> weightedMatching(vector<vector<T>> &C) {
 	vi match(i), rev(m, -1), cols(m), prev(m);
 	T d = 0, nd, cost = 0;
 	while (i--) {
-		rep(c,0,m) dist[c] = C[i][c], cols[c] = c, prev[c] = i;
+		fore(c,0,m) dist[c] = C[i][c], cols[c] = c, prev[c] = i;
 		for (s = 0;;) {
-			rep(j,s,m) {
+			fore(j,s,m) {
 				c = cols[j], nd = dist[c] - pot[c];
 				if (j == s || d > nd) d = nd, swap(cols[s], cols[j]);
 			}
 			if ((r = rev[c = cols[s++]]) == -1) break;
-			rep(j,0,m) if (dist[j] > (nd = C[r][j]-C[r][c]+dist[c]))
+			fore(j,0,m) if (dist[j] > (nd = C[r][j]-C[r][c]+dist[c]))
 				dist[j] = nd, prev[j] = r;
 		}
 		cost += dist[c];
