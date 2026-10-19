@@ -1,21 +1,27 @@
 /**
- * Author: Unknown
- * Date: 2002-09-13
- * Source: predates tinyKACTL
- * Description: Topological sorting. Given is an oriented graph.
- * Output is an ordering of vertices, such that there are edges only from left to right.
- * If there are cycles, the returned list will have size smaller than $n$ -- nodes reachable
- * from cycles will not be returned.
- * Time: $O(|V|+|E|)$
- * Status: stress-tested
+ * Author: Leones000
+ * Date: Unknown
+ * License: CC0
+ * Source: Cookie Clickers ICPC Notebook
+ * Description: Pending
+ * Time: Pending
+ * Status: Tested
  */
 #pragma once
 
-vi topoSort(const vector<vi>& gr) {
-	vi indeg(sz(gr)), q;
-	for (auto& li : gr) for (int x : li) indeg[x]++;
-	fore(i,0,sz(gr)) if (indeg[i] == 0) q.push_back(i);
-	fore(j,0,sz(q)) for (int x : gr[q[j]])
-		if (--indeg[x] == 0) q.push_back(x);
-	return q;
+vector<int> g[MAXN];int n;
+vector<int> tsort(){  // lexicographically smallest topological sort
+	vector<int> r;
+    priority_queue<int> q;
+	vector<int> d(2*n,0);
+	fore(i,0,n)fore(j,0,g[i].size())d[g[i][j]]++;
+	fore(i,0,n)if(!d[i])q.push(-i);
+	while(!q.empty()){
+		int x=-q.top();q.pop();r.pb(x);
+		fore(i,0,g[x].size()){
+			d[g[x][i]]--;
+			if(!d[g[x][i]])q.push(-g[x][i]);
+		}
+	}
+	return r;  // if not DAG it will have less than n elements
 }

@@ -1,65 +1,45 @@
 /**
- * Author: Benjamin Qi, Oleksandr Kulkov, chilli
- * Date: 2020-01-12
+ * Author: Leones000
+ * Date: Unknown
  * License: CC0
- * Source: https://codeforces.com/blog/entry/53170, https://github.com/bqi343/USACO/blob/master/Implementations/content/graphs%20(12)/Trees%20(10)/HLD%20(10.3).h
- * Description: Decomposes a tree into vertex disjoint heavy paths and light
- * edges such that the path from any leaf to the root contains at most log(n)
- * light edges. Code does additive modifications and max queries, but can
- * support commutative segtree modifications/queries on paths and subtrees.
- * Takes as input the full adjacency list. VALS\_EDGES being true means that
- * values are stored in the edges, as opposed to the nodes. All values
- * initialized to the segtree default. Root must be 0.
- * Time: O((\log N)^2)
- * Status: stress-tested against old HLD
+ * Source: Cookie Clickers ICPC Notebook
+ * Description: Pending
+ * Time: Pending
+ * Status: Pending
  */
 #pragma once
 
-#include "../data-structures/LazySegmentTree.h"
-
-template <bool VALS_EDGES> struct HLD {
-	int N, tim = 0;
-	vector<vi> adj;
-	vi par, siz, rt, pos;
-	Node *tree;
-	HLD(vector<vi> adj_)
-		: N(sz(adj_)), adj(adj_), par(N, -1), siz(N, 1),
-		  rt(N),pos(N),tree(new Node(0, N)){ dfsSz(0); dfsHld(0); }
-	void dfsSz(int v) {
-		for (int& u : adj[v]) {
-			adj[u].erase(find(all(adj[u]), v));
-			par[u] = v;
-			dfsSz(u);
-			siz[v] += siz[u];
-			if (siz[u] > siz[adj[v][0]]) swap(u, adj[v][0]);
-		}
+vector<int> g[MAXN];
+int wg[MAXN],dad[MAXN],dep[MAXN]; // weight,father,depth
+void dfs1(int x){
+	wg[x]=1;
+	for(int y:g[x])if(y!=dad[x]){
+		dad[y]=x;dep[y]=dep[x]+1;
+        dfs1(y);
+		wg[x]+=wg[y];
 	}
-	void dfsHld(int v) {
-		pos[v] = tim++;
-		for (int u : adj[v]) {
-			rt[u] = (u == adj[v][0] ? rt[v] : u);
-			dfsHld(u);
-		}
+}
+int curpos,pos[MAXN],head[MAXN];
+void hld(int x, int c){
+	if(c<0)c=x;
+	pos[x]=curpos++;head[x]=c;
+	int mx=-1;
+	for(int y:g[x])if(y!=dad[x]&&(mx<0||wg[mx]<wg[y]))mx=y;
+	if(mx>=0)hld(mx,c);
+	for(int y:g[x])if(y!=mx&&y!=dad[x])hld(y,-1);
+}
+void hld_init(){dad[0]=-1;dep[0]=0;dfs1(0);curpos=0;hld(0,-1);}
+int query(int x, int y, STree& rmq){
+	int r=NEUT;
+	while(head[x]!=head[y]){
+		if(dep[head[x]]>dep[head[y]])swap(x,y);
+		r=oper(r,rmq.query(pos[head[y]],pos[y]+1));
+		y=dad[head[y]];
 	}
-	template <class B> void process(int u, int v, B op) {
-		for (;; v = par[rt[v]]) {
-			if (pos[u] > pos[v]) swap(u, v);
-			if (rt[u] == rt[v]) break;
-			op(pos[rt[v]], pos[v] + 1);
-		}
-		op(pos[u] + VALS_EDGES, pos[v] + 1);
-	}
-	void modifyPath(int u, int v, int val) {
-		process(u, v, [&](int l, int r) { tree->add(l, r, val); });
-	}
-	int queryPath(int u, int v) { // Modify depending on problem
-		int res = -1e9;
-		process(u, v, [&](int l, int r) {
-				res = max(res, tree->query(l, r));
-		});
-		return res;
-	}
-	int querySubtree(int v) { // modifySubtree is similar
-		return tree->query(pos[v] + VALS_EDGES, pos[v] + siz[v]);
-	}
-};
+	if(dep[x]>dep[y])swap(x,y); // now x is lca
+	r=oper(r,rmq.query(pos[x],pos[y]+1));
+	return r;
+}
+// for updating: rmq.upd(pos[x],v);
+// queries on edges: - assign values of edges to "child" node
+//                   - change pos[x] to pos[x]+1 in query (line 28)

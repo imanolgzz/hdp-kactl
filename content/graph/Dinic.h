@@ -1,53 +1,85 @@
 /**
- * Author: chilli
- * Date: 2019-04-26
+ * Author: Sebascert
+ * Date: Unknown
  * License: CC0
- * Source: https://cp-algorithms.com/graph/dinic.html
- * Description: Flow algorithm with complexity $O(VE\log U)$ where $U = \max |\text{cap}|$.
- * $O(\min(E^{1/2}, V^{2/3})E)$ if $U = 1$; $O(\sqrt{V}E)$ for bipartite matching.
- * Status: Tested on SPOJ FASTFLOW and SPOJ MATCHING, stress-tested
+ * Source: Sebascert
+ * Description: Pending
+ * Time: Pending
+ * Status: Tested
  */
 #pragma once
 
+// General E*V^2
+// UnitNetwork/Matching E*sqrt(V)
+// flow(u,v) = g[v][u].cap (idx)
 struct Dinic {
-	struct Edge {
-		int to, rev;
-		ll c, oc;
-		ll flow() { return max(oc - c, 0LL); } // if you need flows
+	using ft = lli;
+	struct edge {
+		int to, rev, idx;
+		ft cap;
 	};
-	vi lvl, ptr, q;
-	vector<vector<Edge>> adj;
-	Dinic(int n) : lvl(n), ptr(n), q(n), adj(n) {}
-	void addEdge(int a, int b, ll c, ll rcap = 0) {
-		adj[a].push_back({b, sz(adj[b]), c, c});
-		adj[b].push_back({a, sz(adj[a]) - 1, rcap, rcap});
+	int n;
+	const ft INF;
+	vector<vector<edge>> g;
+	vector<int> dist, work;
+	Dinic(int n) : n(n), INF(numeric_limits<ft>::max()), g(n), dist(n), work(n) {}
+	void add(int u, int v, ft cap, int idx = -1) {
+		g[u].pb({v, (int)sz(g[v]), -1, cap});
+		g[v].pb({u, (int)sz(g[u]) - 1, idx, 0});
 	}
-	ll dfs(int v, int t, ll f) {
-		if (v == t || !f) return f;
-		for (int& i = ptr[v]; i < sz(adj[v]); i++) {
-			Edge& e = adj[v][i];
-			if (lvl[e.to] == lvl[v] + 1)
-				if (ll p = dfs(e.to, t, min(f, e.c))) {
-					e.c -= p, adj[e.to][e.rev].c += p;
-					return p;
+	bool bfs(int s, int t) {
+		fill(all(dist), -1);
+		queue<int> q;
+		dist[s] = 0;
+		q.push(s);
+		while(!q.empty() && dist[t] == -1) {
+			int p = q.front();
+			q.pop();
+			for(auto&& e: g[p]) {
+				if(e.cap > 0 && dist[e.to] == -1) {
+					dist[e.to] = dist[p] + 1;
+					q.push(e.to);
 				}
+			}
+		}
+		return dist[t] != -1;
+	}
+	ft dfs(int s, int t, ft flow) {
+		if(s == t) return flow;
+		for(int& i = work[s]; i < sz(g[s]); i++) {
+			edge& e = g[s][i];
+			if(e.cap > 0 && dist[s] < dist[e.to]) {
+				ft d = dfs(e.to, t, min(flow, e.cap));
+				if(d > 0) {
+					e.cap -= d;
+					g[e.to][e.rev].cap += d;
+					return d;
+				}
+			}
 		}
 		return 0;
 	}
-	ll calc(int s, int t) {
-		ll flow = 0; q[0] = s;
-		fore(L,0,31) do { // 'int L=30' maybe faster for random data
-			lvl = ptr = vi(sz(q));
-			int qi = 0, qe = lvl[s] = 1;
-			while (qi < qe && !lvl[t]) {
-				int v = q[qi++];
-				for (Edge e : adj[v])
-					if (!lvl[e.to] && e.c >> (30 - L))
-						q[qe++] = e.to, lvl[e.to] = lvl[v] + 1;
-			}
-			while (ll p = dfs(s, t, LLONG_MAX)) flow += p;
-		} while (lvl[t]);
+	ft flow(int s, int t) {
+		if(s == t) return 0;
+		ft flow = 0;
+		while(bfs(s, t)) {
+			fill(all(work), 0);
+			ft f = 0;
+			while((f = dfs(s, t, INF)) > 0) flow += f;
+		}
 		return flow;
 	}
-	bool leftOfMinCut(int a) { return lvl[a] != 0; }
+	vector<bool> mc;
+	void mc_dfs(int u) {
+		if(mc[u]) return;
+		mc[u] = 1;
+		for(auto& e: g[u])
+			if(e.cap) mc_dfs(e.to);
+	}
+	lli mincut(int s, int t) {
+		ft x = flow(s, t);
+		mc.assign(n, 0);
+		mc_dfs(s);
+		return x;
+	}
 };

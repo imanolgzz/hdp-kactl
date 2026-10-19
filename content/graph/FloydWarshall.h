@@ -1,26 +1,24 @@
 /**
- * Author: Simon Lindholm
- * Date: 2016-12-15
+ * Author: Leones000
+ * Date: Unknown
  * License: CC0
- * Source: http://en.wikipedia.org/wiki/Floyd–Warshall_algorithm
- * Description: Calculates all-pairs shortest path in a directed graph that might have negative edge weights.
- * Input is an distance matrix $m$, where $m[i][j] = \texttt{inf}$ if $i$ and $j$ are not adjacent.
- * As output, $m[i][j]$ is set to the shortest distance between $i$ and $j$, \texttt{inf} if no path,
- * or \texttt{-inf} if the path goes through a negative-weight cycle.
- * Time: O(N^3)
- * Status: slightly tested
+ * Source: Cookie Clickers ICPC Notebook
+ * Description: Pending
+ * Time: Pending
+ * Status: Pending
  */
 #pragma once
 
-const ll inf = 1LL << 62;
-void floydWarshall(vector<vector<ll>>& m) {
-	int n = sz(m);
-	fore(i,0,n) m[i][i] = min(m[i][i], 0LL);
-	fore(k,0,n) fore(i,0,n) fore(j,0,n)
-		if (m[i][k] != inf && m[k][j] != inf) {
-			auto newDist = max(m[i][k] + m[k][j], -inf);
-			m[i][j] = min(m[i][j], newDist);
-		}
-	fore(k,0,n) if (m[k][k] < 0) fore(i,0,n) fore(j,0,n)
-		if (m[i][k] != inf && m[k][j] != inf) m[i][j] = -inf;
+// g[i][j]: weight of edge (i, j) or INF if there's no edge
+// g[i][i]=0
+long long g[MAXN][MAXN];
+int n;
+void floyd(){ // O(n^3) . Replaces g with min distances
+	fore(k,0,n)fore(i,0,n)if(g[i][k]<INF)fore(j,0,n)if(g[k][j]<INF)
+		g[i][j]=min(g[i][j],g[i][k]+g[k][j]);
+}
+bool inNegCycle(int v){return g[v][v]<0;}
+bool hasNegCycle(int a, int b){ // true iff there's neg cycle in between
+	fore(i,0,n)if(g[a][i]<INF&&g[i][b]<INF&&g[i][i]<0)return true;
+	return false;
 }
